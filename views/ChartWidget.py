@@ -1,5 +1,5 @@
-from typing import Callable, Iterator
 from PySide6 import QtCore, QtWidgets, QtGui
+from models import PointGenerator
 
 
 class ChartWidget(QtWidgets.QWidget):
@@ -7,12 +7,12 @@ class ChartWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.center_ratio = (0.3, 0.8)
-        self.shift = QtCore.QPoint(0, 0)
+        self.shift = QtCore.QPointF(0, 0)
         self.scale = 10
-        self.draw_callback: list[Callable[[ChartWidget, QtGui.QPainter], None]] = []
+        self.draw_callback: list[PointGenerator] = []
 
     def resizeEvent(self, e):
-        self.shift = QtCore.QPoint(
+        self.shift = QtCore.QPointF(
             self.size().width() * self.center_ratio[0],
             self.size().height() * self.center_ratio[1],
         )
@@ -24,30 +24,26 @@ class ChartWidget(QtWidgets.QWidget):
             callback(self, painter)
         painter.end()
 
-    def setScale(self, scale: float) -> None:
-        self.scale = scale
-
-    def draw_chart_wrapper(
-        self, gen: Callable[[float, float, float, float], Iterator[tuple[float, float]]]
-    ) -> None:
+    def point_generator_wrapper(self, gen: PointGenerator) -> None:
         def draw_chart(window: ChartWidget, painter: QtGui.QPainter) -> None:
             path = QtGui.QPainterPath()
-            size = self.size()
+            size = window.size()
             points = gen(
-                -self.shift.x(),
-                self.shift.y() - size.height(),
-                size.width() - self.shift.x(),
-                self.shift.y(),
+                (
+                    (-window.shift.x(), size.width() - window.shift.x()),
+                    (window.shift.y() - size.height(), window.shift.y()),
+                ),
+                window.scale,
             )
             try:
                 x, y = next(points)
             except Exception as e:
                 print("no x0, y0 from\n", gen)
                 return
-            point = window.scale * QtCore.QPoint(x, -y) + window.shift
+            point = QtCore.QPointF(x, -y) + window.shift
             for x, y in points:
                 path.moveTo(point)
-                point = window.scale * QtCore.QPoint(x, -y) + window.shift
+                point = QtCore.QPointF(x, -y) + window.shift
                 path.lineTo(point)
             painter.drawPath(path)
 
