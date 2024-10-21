@@ -34,10 +34,10 @@ class ChartWidget(QtWidgets.QWidget):
             path = QtGui.QPainterPath()
             size = self.size()
             points = gen(
-                -self.shift.x() / window.scale,
-                (self.shift.y() - size.height()) / window.scale,
-                (size.width() - self.shift.x()) / window.scale,
-                self.shift.y() / window.scale,
+                -self.shift.x(),
+                self.shift.y() - size.height(),
+                size.width() - self.shift.x(),
+                self.shift.y(),
             )
             try:
                 x, y = next(points)
