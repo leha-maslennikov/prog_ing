@@ -34,17 +34,21 @@ class ChartWidget(QtWidgets.QWidget):
             path = QtGui.QPainterPath()
             size = self.size()
             points = gen(
-                -self.shift.x(),
-                self.shift.y(),
-                size.width() - self.shift.x(),
-                self.shift.y() - size.height(),
+                -self.shift.x() / window.scale,
+                (self.shift.y() - size.height()) / window.scale,
+                (size.width() - self.shift.x()) / window.scale,
+                self.shift.y() / window.scale,
             )
-            x0, y0 = next(points)
+            try:
+                x, y = next(points)
+            except Exception as e:
+                print("no x0, y0 from\n", gen)
+                return
+            point = window.scale * QtCore.QPoint(x, -y) + window.shift
             for x, y in points:
-                x, y = window.scale * x, window.scale * y
-                path.moveTo(window.shift.x() + x0, window.shift.y() - y0)
-                path.lineTo(window.shift.x() + x, window.shift.y() - y)
-                x0, y0 = x, y
+                path.moveTo(point)
+                point = window.scale * QtCore.QPoint(x, -y) + window.shift
+                path.lineTo(point)
             painter.drawPath(path)
 
         self.draw_callback.append(draw_chart)
