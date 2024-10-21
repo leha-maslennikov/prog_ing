@@ -9,6 +9,5 @@ def ordinat(min_x: float, min_y: float, max_x: float, max_y: float):
 
 
 def x_times_x(min_x: float, min_y: float, max_x: float, max_y: float):
-    print(min_x, max_x, max_y, min_y)
     for x in range(int(min_x), int(max_x)):
         yield (x, x * x)
