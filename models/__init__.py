@@ -1,2 +1,2 @@
-from utils.euler_method import euler_method
-
+from .PointGenerator import SIZE, POINT, PointGenerator
+from .FuncPointGenerator import FuncPointGenerator
