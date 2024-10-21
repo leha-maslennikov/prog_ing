@@ -1,13 +1,26 @@
-def axis(min_x: float, min_y: float, max_x: float, max_y: float):
-    yield (min_x, 0)
-    yield (max_x, 0)
+from typing import Iterable
+from models import SIZE, POINT, PointGenerator
 
 
-def ordinat(min_x: float, min_y: float, max_x: float, max_y: float):
-    yield (0, max_y)
-    yield (0, min_y)
+class Axis(PointGenerator):
+    def __call__(self, size: SIZE, scale: float = 1) -> Iterable[tuple[float, float]]:
+        super().__call__(size, scale)
+        self.stack = [(self.size[0][0], 0), (self.size[0][1], 0)]
+        return self
+
+    def __next__(self) -> POINT:
+        if self.stack:
+            return self.stack.pop()
+        raise StopIteration
 
 
-def x_times_x(min_x: float, min_y: float, max_x: float, max_y: float):
-    for x in range(int(min_x), int(max_x)):
-        yield (x, x * x)
+class Ordinat(PointGenerator):
+    def __call__(self, size: SIZE, scale: float = 1) -> Iterable[tuple[float, float]]:
+        super().__call__(size, scale)
+        self.stack = [(0, self.size[1][0]), (0, self.size[1][1])]
+        return self
+
+    def __next__(self) -> POINT:
+        if self.stack:
+            return self.stack.pop()
+        raise StopIteration
