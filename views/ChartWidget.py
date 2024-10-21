@@ -20,19 +20,53 @@ class ChartWidget(QtWidgets.QWidget):
     def paintEvent(self, event: QtGui.QPaintEvent):
         painter = QtGui.QPainter()
         painter.begin(self)
+        self.draw_axis(painter)
         for callback in self.draw_callback:
             callback(self, painter)
         painter.end()
 
-    def point_generator_wrapper(self, gen: PointGenerator) -> None:
+    def get_min_max_points(self) -> tuple[QtCore.QPointF, QtCore.QPointF]:
+        size = self.size()
+        shift = self.shift
+        return (
+            QtCore.QPointF(-shift.x(), shift.y() - size.height()),
+            QtCore.QPointF(size.width() - shift.x(), shift.y()),
+        )
+
+    def draw_axis(self, painter: QtGui.QPainter):
+        min_max = self.get_min_max_points()
+        draw_x = lambda x: painter.drawLine(
+            QtCore.QPointF(x, -min_max[0].y()) + self.shift,
+            QtCore.QPointF(x, -min_max[1].y()) + self.shift,
+        )
+        draw_y = lambda y: painter.drawLine(
+            QtCore.QPointF(min_max[0].x(), -y) + self.shift,
+            QtCore.QPointF(min_max[1].x(), -y) + self.shift,
+        )
+        pen = painter.pen()
+        painter.setPen(QtGui.QColor(0, 0, 0, 50))
+        scale = int(self.scale)
+        for x in range(0, int(min_max[1].x()) + 1, scale):
+            draw_x(x)
+        for x in range(0, int(min_max[0].x()) - 1, -scale):
+            draw_x(x)
+        for y in range(0, int(min_max[1].y()) + 1, scale):
+            draw_y(y)
+        for y in range(0, int(min_max[0].y()) - 1, -scale):
+            draw_y(y)
+        painter.setPen(pen)
+
+    def point_generator_wrapper(
+        self, gen: PointGenerator, pen: QtGui.QColor = None
+    ) -> None:
         def draw_chart(window: ChartWidget, painter: QtGui.QPainter) -> None:
+            if pen:
+                tmp_pen = painter.pen()
+                painter.setPen(pen)
             path = QtGui.QPainterPath()
-            size = window.size()
+            min_max = window.get_min_max_points()
             points = gen(
-                (
-                    (-window.shift.x(), size.width() - window.shift.x()),
-                    (window.shift.y() - size.height(), window.shift.y()),
-                ),
+                ((min_max[0].x(), min_max[1].x()), (min_max[0].y(), min_max[1].y())),
                 window.scale,
             )
             try:
@@ -46,5 +80,7 @@ class ChartWidget(QtWidgets.QWidget):
                 point = QtCore.QPointF(x, -y) + window.shift
                 path.lineTo(point)
             painter.drawPath(path)
+            if pen:
+                painter.setPen(tmp_pen)
 
         self.draw_callback.append(draw_chart)
