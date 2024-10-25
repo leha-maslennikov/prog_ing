@@ -1,11 +1,13 @@
 import sys
 from PySide6 import QtWidgets
-from views.MainWindowWidget import MainWindowWidget
+from views.BrusselatorWidget import BrusselatorWidget
+from views import ChartWidget
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindowWidget()
-    window.chart_widget.scale = 20
-    window.show()
+    chart_widget = ChartWidget()
+    brusselator = BrusselatorWidget(chart_widget)
+    chart_widget.show()
+    brusselator.show()
     app.exec()
