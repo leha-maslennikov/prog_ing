@@ -6,15 +6,33 @@ class ChartWidget(QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
-        self.center_ratio = (0.3, 0.8)
-        self.shift = QtCore.QPointF(0, 0)
-        self.scale = 10
+        self.scale = 40
         self.draw_callback: list[PointGenerator] = []
+        self.dy = 0
+
+    def mousePressEvent(self, e: QtGui.QMouseEvent):
+        self.mouse_last_pos = e.globalPosition()
+
+    def mouseMoveEvent(self, e: QtGui.QMouseEvent):
+        if e.buttons() == QtCore.Qt.MouseButton.LeftButton:
+            diff = e.globalPosition() - self.mouse_last_pos
+            if diff.dotProduct(diff, diff) > 50:
+                self.shift += diff
+                self.mouse_last_pos += diff
+                self.repaint()
+
+    def wheelEvent(self, e: QtGui.QWheelEvent):
+        self.dy += e.angleDelta().y()
+        if abs(self.dy) > 10:
+            self.scale += self.dy // 10
+            self.dy = 0
+            self.scale = max(self.scale, 10)
+            self.repaint()
 
     def resizeEvent(self, e):
         self.shift = QtCore.QPointF(
-            self.size().width() * self.center_ratio[0],
-            self.size().height() * self.center_ratio[1],
+            self.size().width() * 0.5,
+            self.size().height() * 0.5,
         )
 
     def paintEvent(self, event: QtGui.QPaintEvent):
@@ -54,6 +72,9 @@ class ChartWidget(QtWidgets.QWidget):
             draw_y(y)
         for y in range(0, int(min_max[0].y()) - 1, -scale):
             draw_y(y)
+        painter.setPen(QtGui.QColor(100, 0, 0, 100))
+        draw_x(0)
+        draw_y(0)
         painter.setPen(pen)
 
     def point_generator_wrapper(
