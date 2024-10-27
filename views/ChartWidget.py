@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from models import PointGenerator
+from time import time
 
 
 class ChartWidget(QtWidgets.QWidget):
@@ -9,21 +10,23 @@ class ChartWidget(QtWidgets.QWidget):
         self.scale = 40
         self.draw_callback: list[PointGenerator] = []
         self.dy = 0
+        self.last_repaint = time()
 
     def mousePressEvent(self, e: QtGui.QMouseEvent):
         self.mouse_last_pos = e.globalPosition()
 
     def mouseMoveEvent(self, e: QtGui.QMouseEvent):
         if e.buttons() == QtCore.Qt.MouseButton.LeftButton:
-            diff = e.globalPosition() - self.mouse_last_pos
-            if diff.dotProduct(diff, diff) > 50:
-                self.shift += diff
-                self.mouse_last_pos += diff
+            if time() - self.last_repaint > 0.1:
+                self.last_repaint = time()
+                self.shift += e.globalPosition() - self.mouse_last_pos
+                self.mouse_last_pos = e.globalPosition()
                 self.repaint()
 
     def wheelEvent(self, e: QtGui.QWheelEvent):
         self.dy += e.angleDelta().y()
-        if abs(self.dy) > 10:
+        if time() - self.last_repaint > 0.1:
+            self.last_repaint = time()
             self.scale += self.dy // 10
             self.dy = 0
             self.scale = max(self.scale, 10)
