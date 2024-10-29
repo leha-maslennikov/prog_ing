@@ -1,10 +1,25 @@
 from typing import Callable, Iterable
-from models import *
+from models import PointGenerator, POINT, SIZE
 
 
 class FuncPointGenerator(PointGenerator):
+    """Генератор на основе функции
+    @code
+    def func(x: float) -> POINT:
+        return x*x
+
+    gen = FuncPointGenerator(func)
+
+    for point in gen(((0, 100), (0, 100)), 1):
+        print(point)
+
+    @endcode"""
+
+    func: Callable[[float], POINT]
+    x: int
 
     def __init__(self, func: Callable[[float], POINT] = lambda x: x) -> None:
+        """@param [in] func вещественная функция вещественного аргумента"""
         self.func = func
 
     def __call__(self, size: SIZE, scale: float = 1) -> Iterable[POINT]:

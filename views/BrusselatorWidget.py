@@ -1,3 +1,5 @@
+"""Виджеты для для создания фазового портрета брюселятора"""
+
 from typing import Callable
 from PySide6 import QtCore, QtGui, QtWidgets
 from utils import EulerMethod, RungeKuttMethod
@@ -6,6 +8,8 @@ from models import PointGenerator, SimpleCachedPointGenerator
 
 
 class BrusselatorInfoWidget(QtWidgets.QWidget):
+    """Виджет с параметрами брюселятора"""
+
     a: float = 1.0
     b: float = 1.0
     point_generator: PointGenerator
@@ -57,6 +61,7 @@ class BrusselatorInfoWidget(QtWidgets.QWidget):
         self.setLayout(vbox)
 
     def parameters_changed(self):
+        """@private"""
         self.a = float(self.edit_a.text())
         self.b = float(self.edit_b.text())
         self.color = self.edit_color.text()
@@ -88,17 +93,22 @@ class BrusselatorInfoWidget(QtWidgets.QWidget):
             brusselator_widget.repaint_charts()
 
     def x_prime(self, x: float, y: float):
+        """@private"""
         return 1 - (self.b + 1) * x + self.a * x * x * y
 
     def y_prime(self, x: float, y: float):
+        """@private"""
         return self.b * x - self.a * x * x * y
 
 
 class BrusselatorWidget(QtWidgets.QWidget):
+    """Виджет содержащий виджеты параметров брюселятора"""
+
     charts: list[BrusselatorInfoWidget] = []
     chart_widget: ChartWidget
 
     def __init__(self, chart_widget: ChartWidget) -> None:
+        """@param [in, out] chart_widget виджет, в котором будут строится графики"""
         super().__init__()
 
         self.chart_widget = chart_widget
@@ -112,11 +122,13 @@ class BrusselatorWidget(QtWidgets.QWidget):
         self.setLayout(vbox)
 
     def add_brusselator(self):
+        """@private"""
         b = BrusselatorInfoWidget()
         self.charts.append(b)
         self.vbox.addWidget(b)
 
     def repaint_charts(self):
+        """@private"""
         self.chart_widget.draw_callback.clear()
         for model in self.charts:
             self.chart_widget.point_generator_wrapper(

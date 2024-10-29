@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['x_0',['x',['../classmodels_1_1FuncPointGenerator_1_1FuncPointGenerator.html#a6150e0515f7202e2fb518f7206ed97dc',1,'models.FuncPointGenerator.FuncPointGenerator.x'],['../classmodels_1_1FuncPointGenerator_1_1FuncPointGenerator.html#a9336ebf25087d91c818ee6e9ec29f8c1',1,'models.FuncPointGenerator.FuncPointGenerator.x'],['../classutils_1_1methods_1_1EulerMethod.html#a9336ebf25087d91c818ee6e9ec29f8c1',1,'utils.methods.EulerMethod.x'],['../classutils_1_1methods_1_1RungeKuttMethod.html#a9336ebf25087d91c818ee6e9ec29f8c1',1,'utils.methods.RungeKuttMethod.x']]],
+  ['x0_1',['x0',['../classutils_1_1methods_1_1EulerMethod.html#aa48da42c617fdb7cf84e9a3f80aa04e8',1,'utils.methods.EulerMethod.x0'],['../classutils_1_1methods_1_1RungeKuttMethod.html#aa48da42c617fdb7cf84e9a3f80aa04e8',1,'utils.methods.RungeKuttMethod.x0']]],
+  ['x_5fprime_2',['x_prime',['../classutils_1_1methods_1_1EulerMethod.html#a0c6a84cea575acb1f16fcab883ae11df',1,'utils.methods.EulerMethod.x_prime'],['../classutils_1_1methods_1_1RungeKuttMethod.html#a0c6a84cea575acb1f16fcab883ae11df',1,'utils.methods.RungeKuttMethod.x_prime'],['../classviews_1_1BrusselatorWidget_1_1BrusselatorInfoWidget.html#a0c6a84cea575acb1f16fcab883ae11df',1,'views.BrusselatorWidget.BrusselatorInfoWidget.x_prime']]]
+];

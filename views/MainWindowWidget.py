@@ -1,5 +1,8 @@
+"""В разработке"""
+
 from PySide6 import QtCore, QtWidgets, QtGui
 from .ChartWidget import ChartWidget
+
 
 class MainWindowWidget(QtWidgets.QMainWindow):
 

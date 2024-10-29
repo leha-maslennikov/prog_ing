@@ -1,9 +1,17 @@
+"""Виджет для построения графиков"""
+
 from PySide6 import QtCore, QtWidgets, QtGui
 from models import PointGenerator
 from time import time
 
 
 class ChartWidget(QtWidgets.QWidget):
+    """Виджет для построения графиков
+
+    @code
+    chart = ChartWidget()
+    chart.point_generator_wrapper(FuncPointGenerator(lambda x: x*x), QColor('#00FF00'))
+    @endcode"""
 
     def __init__(self):
         super().__init__()
@@ -13,9 +21,11 @@ class ChartWidget(QtWidgets.QWidget):
         self.last_repaint = time()
 
     def mousePressEvent(self, e: QtGui.QMouseEvent):
+        """@private"""
         self.mouse_last_pos = e.globalPosition()
 
     def mouseMoveEvent(self, e: QtGui.QMouseEvent):
+        """@private"""
         if e.buttons() == QtCore.Qt.MouseButton.LeftButton:
             if time() - self.last_repaint > 0.1:
                 self.last_repaint = time()
@@ -24,6 +34,7 @@ class ChartWidget(QtWidgets.QWidget):
                 self.repaint()
 
     def wheelEvent(self, e: QtGui.QWheelEvent):
+        """@private"""
         self.dy += e.angleDelta().y()
         if time() - self.last_repaint > 0.1:
             self.last_repaint = time()
@@ -33,12 +44,14 @@ class ChartWidget(QtWidgets.QWidget):
             self.repaint()
 
     def resizeEvent(self, e):
+        """@private"""
         self.shift = QtCore.QPointF(
             self.size().width() * 0.5,
             self.size().height() * 0.5,
         )
 
     def paintEvent(self, event: QtGui.QPaintEvent):
+        """@private"""
         painter = QtGui.QPainter()
         painter.begin(self)
         self.draw_axis(painter)
@@ -47,6 +60,7 @@ class ChartWidget(QtWidgets.QWidget):
         painter.end()
 
     def get_min_max_points(self) -> tuple[QtCore.QPointF, QtCore.QPointF]:
+        """@private"""
         size = self.size()
         shift = self.shift
         return (
@@ -55,6 +69,7 @@ class ChartWidget(QtWidgets.QWidget):
         )
 
     def draw_axis(self, painter: QtGui.QPainter):
+        """@private"""
         min_max = self.get_min_max_points()
         draw_x = lambda x: painter.drawLine(
             QtCore.QPointF(x, -min_max[0].y()) + self.shift,
@@ -83,6 +98,12 @@ class ChartWidget(QtWidgets.QWidget):
     def point_generator_wrapper(
         self, gen: PointGenerator, pen: QtGui.QColor = None
     ) -> None:
+        """добавляет генератор для отрисовки его точек
+
+        @param [in] gen генератор точек для отрисовки, которые будут последовательно соединены
+        @param [in] pen задаёт цвет кривой
+        """
+
         def draw_chart(window: ChartWidget, painter: QtGui.QPainter) -> None:
             if pen:
                 tmp_pen = painter.pen()

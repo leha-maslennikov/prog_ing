@@ -1,8 +1,23 @@
+"""Модуль с математическими методами для генерации точек"""
+
 from typing import Callable
 from models import PointGenerator, POINT, SIZE
 
 
 class EulerMethod(PointGenerator):
+    """Метод Эйлера для построения фазового портрета
+    
+    @code
+    def x_prime(float x, float y) -> POINT:
+        return x
+    def y_prime(float x, float y) -> POINT:
+        return -y
+
+    gen = EulerMethod(x_prime, y_prime, 1, 0, 0.01, 1000)
+    for point in gen(((0, 100), (0, 100)), 1):
+        print(point)
+    @endcode"""
+
     def __init__(
         self,
         x_prime: Callable[[float, float], tuple[float, float]],
@@ -12,6 +27,12 @@ class EulerMethod(PointGenerator):
         h: float,
         cnt: int,
     ):
+        """@param [in] x_prime производная по x
+        @param [in] y_prime производная по y
+        @param [in] x начальный x
+        @param [in] y начальный y
+        @param [in] h шаг метода
+        @param [in] cnt кол-во шагов"""
         self.x_prime = x_prime
         self.y_prime = y_prime
         self.x = x
@@ -38,6 +59,19 @@ class EulerMethod(PointGenerator):
 
 
 class RungeKuttMethod(PointGenerator):
+    """Метод Рунге-Кутта для построения фазового портрета
+    
+    @code
+    def x_prime(float x, float y) -> POINT:
+        return x
+    def y_prime(float x, float y) -> POINT:
+        return -y
+
+    gen = RungeKuttMethod(x_prime, y_prime, 1, 0, 0.1, 1000)
+    for point in gen(((0, 100), (0, 100)), 1):
+        print(point)
+    @endcode"""
+
     def __init__(
         self,
         x_prime: Callable[[float, float], tuple[float, float]],
@@ -47,6 +81,12 @@ class RungeKuttMethod(PointGenerator):
         h: float,
         cnt: int,
     ):
+        """@param [in] x_prime производная по x
+        @param [in] y_prime производная по y
+        @param [in] x начальный x
+        @param [in] y начальный y
+        @param [in] h шаг метода
+        @param [in] cnt кол-во шагов"""
         self.x_prime = x_prime
         self.y_prime = y_prime
         self.x = x
