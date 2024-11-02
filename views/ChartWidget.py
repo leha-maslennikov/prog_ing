@@ -56,28 +56,53 @@ class ChartWidget(QtWidgets.QWidget):
 
     def draw_axis(self, painter: QtGui.QPainter):
         min_max = self.get_min_max_points()
-        draw_x = lambda x: painter.drawLine(
-            QtCore.QPointF(x, -min_max[0].y()) + self.shift,
-            QtCore.QPointF(x, -min_max[1].y()) + self.shift,
-        )
-        draw_y = lambda y: painter.drawLine(
-            QtCore.QPointF(min_max[0].x(), -y) + self.shift,
-            QtCore.QPointF(min_max[1].x(), -y) + self.shift,
-        )
+
+        scale = int(self.scale)
+        delimiter = 60
+        delimiter_weight = delimiter / scale
+
         pen = painter.pen()
         painter.setPen(QtGui.QColor(0, 0, 0, 50))
-        scale = int(self.scale)
-        for x in range(0, int(min_max[1].x()) + 1, scale):
-            draw_x(x)
-        for x in range(0, int(min_max[0].x()) - 1, -scale):
-            draw_x(x)
-        for y in range(0, int(min_max[1].y()) + 1, scale):
-            draw_y(y)
-        for y in range(0, int(min_max[0].y()) - 1, -scale):
-            draw_y(y)
-        painter.setPen(QtGui.QColor(100, 0, 0, 100))
-        draw_x(0)
-        draw_y(0)
+        font = painter.font()
+
+        font.setPointSize(14)
+        painter.setFont(font)
+
+        x0 = self.shift.x()
+        y0 = self.shift.y()
+        min_x = int(min_max[0].x() / delimiter) * delimiter
+        max_x = int(min_max[1].x() / delimiter) * delimiter
+        for x in range(min_x, max_x + 1, delimiter):
+            p1 = QtCore.QPointF(x0 + x, 0)
+            p2 = QtCore.QPointF(x0 + x, self.size().height())
+            painter.drawLine(p1, p2)
+            painter.drawText(
+                x0 + x,
+                min(self.size().height() - 15, abs(max(15, y0))),
+                str(x // delimiter * delimiter_weight)[0:4],
+            )
+        min_y = int(min_max[0].y() / delimiter) * delimiter
+        max_y = int(min_max[1].y() / delimiter) * delimiter
+        for y in range(min_y, max_y + 1, delimiter):
+            p1 = QtCore.QPointF(0, y0 - y)
+            p2 = QtCore.QPointF(self.size().width(), y0 - y)
+            painter.drawLine(p1, p2)
+            painter.drawText(
+                min(self.size().width() - 40, max(0, x0)),
+                y0 - y,
+                str(-y // delimiter * delimiter_weight)[0:4],
+            )
+
+        painter.setPen(
+            QtGui.QPen(QtGui.Qt.GlobalColor.black, 1, QtGui.Qt.PenStyle.SolidLine)
+        )
+        p1 = QtCore.QPointF(x0, 0)
+        p2 = QtCore.QPointF(x0, self.size().height())
+        painter.drawLine(p1, p2)
+        p1 = QtCore.QPointF(0, y0)
+        p2 = QtCore.QPointF(self.size().width(), y0)
+        painter.drawLine(p1, p2)
+
         painter.setPen(pen)
 
     def point_generator_wrapper(
