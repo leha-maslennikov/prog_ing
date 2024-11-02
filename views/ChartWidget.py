@@ -90,7 +90,7 @@ class ChartWidget(QtWidgets.QWidget):
             painter.drawText(
                 min(self.size().width() - 40, max(0, x0)),
                 y0 - y,
-                str(-y // delimiter * delimiter_weight)[0:4],
+                str(y // delimiter * delimiter_weight)[0:4],
             )
 
         painter.setPen(
