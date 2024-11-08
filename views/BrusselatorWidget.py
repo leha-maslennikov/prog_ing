@@ -2,36 +2,43 @@ from typing import Callable
 from PySide6 import QtCore, QtGui, QtWidgets
 from utils import EulerMethod, RungeKuttMethod
 from views import ChartWidget
-from models import PointGenerator, SimpleCachedPointGenerator
+from models import PointGenerator, SimpleCachedPointGenerator, Brusselator
 
 
 class BrusselatorInfoWidget(QtWidgets.QWidget):
-    a: float = 1.0
-    b: float = 1.0
     point_generator: PointGenerator
     color: str
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        a: float = 1.0,
+        b: float = 1.0,
+        h: float = 0.1,
+        cnt: int = 1000,
+        x: float = 2,
+        y: float = 2,
+        is_euler: bool = False,
+    ) -> None:
         super().__init__()
 
-        self.edit_a = QtWidgets.QLineEdit("1")
-        self.edit_b = QtWidgets.QLineEdit("1")
+        self.edit_a = QtWidgets.QLineEdit(str(a))
+        self.edit_b = QtWidgets.QLineEdit(str(b))
         hbox1 = QtWidgets.QHBoxLayout()
         hbox1.addWidget(QtWidgets.QLabel("a = "))
         hbox1.addWidget(self.edit_a)
         hbox1.addWidget(QtWidgets.QLabel("b = "))
         hbox1.addWidget(self.edit_b)
 
-        self.edit_h = QtWidgets.QLineEdit("0.1")
-        self.edit_cnt = QtWidgets.QLineEdit("1000")
+        self.edit_h = QtWidgets.QLineEdit(str(h))
+        self.edit_cnt = QtWidgets.QLineEdit(str(cnt))
         hbox2 = QtWidgets.QHBoxLayout()
         hbox2.addWidget(QtWidgets.QLabel("h = "))
         hbox2.addWidget(self.edit_h)
         hbox2.addWidget(QtWidgets.QLabel("cnt = "))
         hbox2.addWidget(self.edit_cnt)
 
-        self.edit_x = QtWidgets.QLineEdit("2")
-        self.edit_y = QtWidgets.QLineEdit("2")
+        self.edit_x = QtWidgets.QLineEdit(str(x))
+        self.edit_y = QtWidgets.QLineEdit(str(y))
         hbox3 = QtWidgets.QHBoxLayout()
         hbox3.addWidget(QtWidgets.QLabel("x = "))
         hbox3.addWidget(self.edit_x)
@@ -57,41 +64,31 @@ class BrusselatorInfoWidget(QtWidgets.QWidget):
         self.setLayout(vbox)
 
     def parameters_changed(self):
-        self.a = float(self.edit_a.text())
-        self.b = float(self.edit_b.text())
         self.color = self.edit_color.text()
         if self.euler.isChecked():
-            self.point_generator = SimpleCachedPointGenerator(
-                EulerMethod(
-                    self.x_prime,
-                    self.y_prime,
-                    float(self.edit_x.text()),
-                    float(self.edit_y.text()),
-                    float(self.edit_h.text()),
-                    int(self.edit_cnt.text()),
-                )
+            self.point_generator = Brusselator(
+                float(self.edit_a.text()),
+                float(self.edit_b.text()),
+                float(self.edit_h.text()),
+                int(self.edit_cnt.text()),
+                float(self.edit_x.text()),
+                float(self.edit_y.text()),
+                True,
             )
         else:
-            self.point_generator = SimpleCachedPointGenerator(
-                RungeKuttMethod(
-                    self.x_prime,
-                    self.y_prime,
-                    float(self.edit_x.text()),
-                    float(self.edit_y.text()),
-                    float(self.edit_h.text()),
-                    int(self.edit_cnt.text()),
-                )
+            self.point_generator = Brusselator(
+                float(self.edit_a.text()),
+                float(self.edit_b.text()),
+                float(self.edit_h.text()),
+                int(self.edit_cnt.text()),
+                float(self.edit_x.text()),
+                float(self.edit_y.text()),
+                False,
             )
 
         brusselator_widget = self.parent()
         if isinstance(brusselator_widget, BrusselatorWidget):
             brusselator_widget.repaint_charts()
-
-    def x_prime(self, x: float, y: float):
-        return 1 - (self.b + 1) * x + self.a * x * x * y
-
-    def y_prime(self, x: float, y: float):
-        return self.b * x - self.a * x * x * y
 
 
 class BrusselatorWidget(QtWidgets.QWidget):
@@ -123,3 +120,24 @@ class BrusselatorWidget(QtWidgets.QWidget):
                 model.point_generator, QtGui.QColor(model.color)
             )
         self.chart_widget.repaint()
+
+
+class BrusselatorFabricWidget(ChartWidget):
+    def __init__(
+        self,
+        a: float = 1.0,
+        b: float = 1.0,
+        h: float = 0.1,
+        cnt: int = 1000,
+        is_euler: bool = False,
+    ):
+        super().__init__()
+        def add_brusselator(x:float, y:float) -> PointGenerator:
+            return Brusselator(a, b, h, cnt, x, y)
+        
+        self.add_brusselator = add_brusselator
+
+    def mouseDoubleClickEvent(self, e: QtGui.QMouseEvent):
+        p = (self.shift - e.position())/self.scale
+        self.point_generator_wrapper(self.add_brusselator(-p.x(), p.y()))
+        self.repaint()
