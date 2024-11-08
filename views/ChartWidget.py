@@ -18,19 +18,19 @@ class ChartWidget(QtWidgets.QWidget):
     def mouseMoveEvent(self, e: QtGui.QMouseEvent):
         if e.buttons() == QtCore.Qt.MouseButton.LeftButton:
             if time() - self.last_repaint > 0.1:
-                self.last_repaint = time()
                 self.shift += e.globalPosition() - self.mouse_last_pos
                 self.mouse_last_pos = e.globalPosition()
                 self.repaint()
+                self.last_repaint = time()
 
     def wheelEvent(self, e: QtGui.QWheelEvent):
         self.dy += e.angleDelta().y()
         if time() - self.last_repaint > 0.1:
-            self.last_repaint = time()
             self.scale += self.dy // 10
             self.dy = 0
             self.scale = max(self.scale, 10)
             self.repaint()
+            self.last_repaint = time()
 
     def resizeEvent(self, e):
         self.shift = QtCore.QPointF(
