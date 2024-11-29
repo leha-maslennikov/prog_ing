@@ -1,6 +1,6 @@
 from typing import Callable
 from PySide6 import QtCore, QtGui, QtWidgets
-from utils import EulerMethod, RungeKuttMethod
+from utils import EulerMethod, RungeKuttMethod, Cycle
 from views import ChartWidget
 from models import PointGenerator, SimpleCachedPointGenerator, Brusselator
 
@@ -130,14 +130,30 @@ class BrusselatorFabricWidget(ChartWidget):
         h: float = 0.1,
         cnt: int = 1000,
         is_euler: bool = False,
+        eps: float = None,
     ):
         super().__init__()
-        def add_brusselator(x:float, y:float) -> PointGenerator:
-            return Brusselator(a, b, h, cnt, x, y)
-        
+        self.a = a
+        self.b = b
+
+        def add_brusselator(x: float, y: float) -> PointGenerator:
+            return Brusselator(self.a, self.b, h, cnt, x, y, is_euler=is_euler, eps=eps)
+
         self.add_brusselator = add_brusselator
 
+        '''from PySide6.QtGui import QColor, QPen, Qt
+        self.point_generator_wrapper(
+            Brusselator(self.a, self.b, h, cnt, 1, 1, is_euler=is_euler, eps=10 ** (-5)),
+            QPen(QColor('#FF0000'), 3, Qt.PenStyle.SolidLine)
+        )'''
+
     def mouseDoubleClickEvent(self, e: QtGui.QMouseEvent):
-        p = (self.shift - e.position())/self.scale
-        self.point_generator_wrapper(self.add_brusselator(-p.x(), p.y()))
-        self.repaint()
+        p = (self.shift - e.position()) / self.scale
+        '''self.point_generator_wrapper(self.add_brusselator(-p.x(), p.y()))
+        self.draw_callback[-1], self.draw_callback[-2] = self.draw_callback[-2], self.draw_callback[-1]
+        self.repaint()'''
+        if self.a > 0:
+            print('===',self.a)
+            self.point_generator_wrapper(self.add_brusselator(-p.x(), p.y()))
+            self.repaint()
+            self.a -= 0.05

@@ -1,2 +1,2 @@
 from .generators import Axis, Ordinat
-from .methods import EulerMethod, RungeKuttMethod
+from .methods import EulerMethod, RungeKuttMethod, Cycle

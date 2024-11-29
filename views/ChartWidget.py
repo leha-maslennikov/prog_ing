@@ -102,6 +102,11 @@ class ChartWidget(QtWidgets.QWidget):
         p1 = QtCore.QPointF(0, y0)
         p2 = QtCore.QPointF(self.size().width(), y0)
         painter.drawLine(p1, p2)
+        painter.setPen(
+            QtGui.QPen(QtGui.Qt.GlobalColor.black, 2.0, QtGui.Qt.PenStyle.SolidLine)
+        )
+        painter.drawText(self.size().width() - 10, min(self.size().height() - 12, y0 - 2), "x")
+        painter.drawText(max(0, x0+2), 12, "y")
 
         painter.setPen(pen)
 
